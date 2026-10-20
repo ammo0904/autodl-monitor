@@ -1,0 +1,243 @@
+/* AutoDL 主機 GPU 監控 — 頁內面板樣式（全部加上 adl- 前綴，避免影響 AutoDL 版面） */
+
+#adl-monitor-panel {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  width: 330px;
+  z-index: 2147483000;
+  background: #ffffff;
+  color: #1f2430;
+  border: 1px solid #e3e7ef;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(20, 30, 60, .16);
+  font-family: -apple-system, "Segoe UI", "Microsoft JhengHei", "PingFang TC", sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
+  overflow: hidden;
+}
+
+#adl-monitor-panel.adl-collapsed .adl-body,
+#adl-monitor-panel.adl-collapsed .adl-alert {
+  display: none;
+}
+
+#adl-monitor-panel .adl-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  background: linear-gradient(120deg, #2f6bff, #1e4fd6);
+  color: #fff;
+  cursor: default;
+}
+
+#adl-monitor-panel .adl-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #7dffb2;
+  box-shadow: 0 0 6px #7dffb2;
+  flex: none;
+}
+
+#adl-monitor-panel .adl-head-title {
+  font-weight: 600;
+  flex: 1;
+}
+
+#adl-monitor-panel .adl-head-time {
+  opacity: .85;
+  font-size: 11px;
+}
+
+#adl-monitor-panel .adl-fold {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, .18);
+  color: #fff;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+#adl-monitor-panel .adl-fold:hover {
+  background: rgba(255, 255, 255, .32);
+}
+
+#adl-monitor-panel .adl-alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: #fff5e6;
+  border-bottom: 1px solid #ffe0b8;
+  color: #8a5200;
+}
+
+#adl-monitor-panel .adl-alert-text {
+  flex: 1;
+  font-weight: 600;
+}
+
+#adl-monitor-panel .adl-alert-actions {
+  display: flex;
+  gap: 6px;
+  flex: none;
+}
+
+#adl-monitor-panel .adl-alert button {
+  border: 1px solid #e2ab5c;
+  background: #fff;
+  color: #8a5200;
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+#adl-monitor-panel .adl-body {
+  padding: 9px 10px 10px;
+}
+
+#adl-monitor-panel .adl-summary {
+  color: #5a6478;
+  margin-bottom: 7px;
+  word-break: break-all;
+}
+
+#adl-monitor-panel .adl-targets {
+  max-height: 190px;
+  overflow: auto;
+  margin-bottom: 8px;
+}
+
+#adl-monitor-panel .adl-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 0;
+  border-bottom: 1px dashed #eef1f6;
+}
+
+#adl-monitor-panel .adl-item:last-child {
+  border-bottom: none;
+}
+
+#adl-monitor-panel .adl-item-main {
+  flex: 1;
+  min-width: 0;
+}
+
+#adl-monitor-panel .adl-item-name {
+  display: block;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#adl-monitor-panel .adl-item-detail {
+  color: #7a8496;
+  font-size: 11px;
+}
+
+#adl-monitor-panel .adl-badge {
+  flex: none;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+#adl-monitor-panel .adl-ok {
+  color: #0f7a3d;
+}
+
+#adl-monitor-panel .adl-badge.adl-ok {
+  background: #e4f8ec;
+}
+
+#adl-monitor-panel .adl-warn {
+  color: #9a6206;
+}
+
+#adl-monitor-panel .adl-badge.adl-warn {
+  background: #fdf3e0;
+}
+
+#adl-monitor-panel .adl-bad {
+  color: #c0392b;
+}
+
+#adl-monitor-panel .adl-badge.adl-bad {
+  background: #fdecea;
+}
+
+#adl-monitor-panel .adl-empty {
+  color: #8a93a5;
+  padding: 6px 0 8px;
+}
+
+#adl-monitor-panel .adl-actions {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+#adl-monitor-panel .adl-actions button {
+  flex: 1;
+  border: 1px solid #d6ddec;
+  background: #f7f9fd;
+  color: #2b3550;
+  border-radius: 7px;
+  padding: 5px 4px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+#adl-monitor-panel .adl-actions button:hover {
+  background: #eef3ff;
+  border-color: #b9c9f2;
+}
+
+#adl-monitor-panel .adl-note {
+  color: #98a1b3;
+  font-size: 11px;
+}
+
+/* 算力市場主機卡片上的「＋監控」按鈕 */
+.list-item {
+  position: relative;
+}
+
+.adl-add-host {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 20;
+  border: 1px solid #2f6bff;
+  background: #f2f6ff;
+  color: #2f6bff;
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 12px;
+  line-height: 18px;
+  cursor: pointer;
+  font-family: -apple-system, "Segoe UI", "Microsoft JhengHei", "PingFang TC", sans-serif;
+}
+
+.adl-add-host:hover {
+  background: #2f6bff;
+  color: #fff;
+}
+
+.adl-add-host.adl-added {
+  border-color: #17a05a;
+  background: #e8f9f0;
+  color: #17a05a;
+}

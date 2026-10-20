@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <title>AutoDL 主機監控</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header class="head">
+    <div class="head-row">
+      <span class="brand">AutoDL 主機監控</span>
+      <span class="tag">免刷新</span>
+      <span class="grow"></span>
+      <span id="headAlert" class="head-alert" hidden>有空閒！</span>
+    </div>
+    <div id="statusLine" class="status-line">載入中…</div>
+  </header>
+
+  <nav class="tabs">
+    <button type="button" class="tab-btn active" data-tab="watch">監控</button>
+    <button type="button" class="tab-btn" data-tab="library">主機庫</button>
+    <button type="button" class="tab-btn" data-tab="settings">設定</button>
+    <button type="button" class="tab-btn" data-tab="diag">診斷</button>
+  </nav>
+
+  <main>
+    <!-- ============================ 監控 ============================ -->
+    <section class="tab-panel active" data-panel="watch">
+      <div id="alertBox" class="alert" hidden>
+        <div class="alert-title">🔔 GPU 空閒了</div>
+        <div id="alertText" class="alert-text"></div>
+        <div class="alert-actions">
+          <button type="button" id="alertOpen" class="primary">前往 AutoDL 租用</button>
+          <button type="button" id="alertStop">停止提醒</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">新增監控主機（用主機名稱）</div>
+        <div class="row">
+          <input id="targetInput" type="text" placeholder="例：西北B区 / 824机、824机、824">
+          <input id="requiredInput" type="number" min="1" max="8" value="1" title="需要幾張空閒 GPU">
+          <button type="button" id="addBtn" class="primary">加入</button>
+        </div>
+        <div class="hint">右邊數字＝這台主機需要幾張空閒卡才算「有空」。也可以用「主機庫」分頁挑選。</div>
+      </div>
+
+      <div id="watchList" class="list"></div>
+
+      <div class="row footer">
+        <button type="button" id="scanBtn" class="primary">立即檢查</button>
+        <button type="button" id="openAutodlBtn">開啟 AutoDL 算力市場</button>
+      </div>
+      <div class="hint" id="watchHint"></div>
+    </section>
+
+    <!-- =========================== 主機庫 =========================== -->
+    <section class="tab-panel" data-panel="library">
+      <div class="card">
+        <div class="row">
+          <input id="libSearch" type="text" placeholder="搜尋主機名稱、GPU 型號、地區…">
+          <label class="check"><input type="checkbox" id="libOnlyIdle"> 只看有空閒</label>
+        </div>
+        <div class="hint" id="libMeta">主機庫是最近一次掃描抓到的 AutoDL 全站主機（含第 2 頁之後的所有分頁）。</div>
+      </div>
+      <div id="libList" class="list"></div>
+      <div class="pager">
+        <button type="button" id="libPrev">上一頁</button>
+        <span id="libPageInfo" class="pager-info">—</span>
+        <button type="button" id="libNext">下一頁</button>
+      </div>
+    </section>
+
+    <!-- ============================ 設定 ============================ -->
+    <section class="tab-panel" data-panel="settings">
+      <div class="card">
+        <div class="card-title">監控</div>
+        <label class="field"><span>啟用背景監控</span>
+          <input type="checkbox" data-setting="enabled">
+        </label>
+        <label class="field"><span>檢查間隔</span>
+          <select data-setting="intervalSeconds">
+            <option value="30">30 秒（Chrome 最快）</option>
+            <option value="60">1 分鐘</option>
+            <option value="120">2 分鐘</option>
+            <option value="300">5 分鐘</option>
+            <option value="600">10 分鐘</option>
+          </select>
+        </label>
+        <label class="field"><span>預設需要卡數</span>
+          <input type="number" min="1" max="8" data-setting="requiredDefault">
+        </label>
+        <label class="field"><span>資料通道</span>
+          <select data-setting="transport">
+            <option value="auto">自動（先背景、失敗改用頁面）</option>
+            <option value="worker">只用背景請求（不需開頁面）</option>
+            <option value="page">只用 AutoDL 頁面</option>
+          </select>
+        </label>
+        <div class="hint">背景請求完全不需要頁面；若 AutoDL 之後加了來源檢查，切到「頁面」通道即可。</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">抓取範圍（分頁）</div>
+        <label class="field"><span>每頁筆數</span>
+          <select data-setting="pageSize">
+            <option value="10">10（跟網頁一樣）</option>
+            <option value="50">50</option>
+            <option value="90">90（AutoDL 預設）</option>
+            <option value="100">100</option>
+            <option value="200">200</option>
+          </select>
+        </label>
+        <label class="field"><span>最大頁數</span>
+          <input type="number" min="1" max="200" data-setting="maxPages">
+        </label>
+        <label class="field"><span>翻頁間隔</span>
+          <select data-setting="requestDelayMs">
+            <option value="0">不等待</option>
+            <option value="250">250 毫秒</option>
+            <option value="500">500 毫秒</option>
+            <option value="1000">1 秒</option>
+          </select>
+        </label>
+        <div class="hint" id="pageEstimate">AutoDL 主機清單一頁最多 90 台；訂閱的主機若排在第 2 頁之後，這裡會自動翻頁抓完。</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">篩選（可大幅減少抓取量）</div>
+        <label class="field"><span>計費方式</span>
+          <select data-setting="filters.chargeType">
+            <option value="payg">按量計費</option>
+            <option value="daily">包日</option>
+            <option value="weekly">包週</option>
+            <option value="monthly">包月</option>
+          </select>
+        </label>
+        <label class="field"><span>最低空閒卡數</span>
+          <input type="number" min="0" max="8" data-setting="filters.minIdle">
+        </label>
+        <div class="sub-title">GPU 型號（不選＝全部）</div>
+        <div id="gpuFilter" class="chips"></div>
+        <div class="sub-title">地區（不選＝全部）</div>
+        <input id="regionSearch" type="text" placeholder="搜尋地區，例如 西北">
+        <div id="regionFilter" class="chips"></div>
+        <div class="row footer">
+          <button type="button" id="clearFilters">清除篩選</button>
+          <button type="button" id="metaReload">重新讀取型號／地區</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">提醒</div>
+        <label class="field"><span>啟用提醒</span><input type="checkbox" data-setting="alarm.enabled"></label>
+        <label class="field"><span>桌面通知</span><input type="checkbox" data-setting="alarm.notify"></label>
+        <label class="field"><span>提醒音</span>
+          <select data-setting="alarm.sound">
+            <option value="classic">經典提示</option>
+            <option value="double">雙響</option>
+            <option value="digital">數字警報</option>
+            <option value="gentle">柔和提示</option>
+            <option value="urgent">急促提醒</option>
+          </select>
+        </label>
+        <label class="field"><span>重複提醒間隔</span>
+          <select data-setting="alarm.repeatMinutes">
+            <option value="0">只提醒一次</option>
+            <option value="2">每 2 分鐘</option>
+            <option value="5">每 5 分鐘</option>
+            <option value="10">每 10 分鐘</option>
+            <option value="30">每 30 分鐘</option>
+          </select>
+        </label>
+        <label class="field"><span>持續響鈴直到關閉</span><input type="checkbox" data-setting="alarm.continuous"></label>
+        <div class="row footer">
+          <button type="button" id="testAlarm">測試響鈴</button>
+          <button type="button" id="muteToggle">靜音 / 取消靜音</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">資料</div>
+        <div class="row footer">
+          <button type="button" id="exportBtn">匯出設定</button>
+          <button type="button" id="importBtn">匯入設定</button>
+          <button type="button" id="resetBtn" class="danger">清除全部資料</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ 診斷 ============================ -->
+    <section class="tab-panel" data-panel="diag">
+      <div class="card">
+        <div class="card-title">登入狀態</div>
+        <div id="diagAuth" class="kv"></div>
+        <div class="row footer">
+          <button type="button" id="captureAuthBtn" class="primary">重新取得 AutoDL 登入狀態</button>
+        </div>
+        <div class="hint">擴充套件讀取的是 AutoDL 頁面自己存在 localStorage 的登入權杖，只會送到 www.autodl.com 的介面，不會傳給任何第三方。</div>
+      </div>
+      <div class="card">
+        <div class="card-title">上次掃描</div>
+        <div id="diagScan" class="kv"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">監控結果</div>
+        <div id="diagTargets" class="kv"></div>
+      </div>
+      <details class="card">
+        <summary class="card-title">原始回應（除錯用，最多 1200 字）</summary>
+        <pre id="rawSample" class="raw">—</pre>
+      </details>
+      <div class="row footer">
+        <button type="button" id="copyDiag" class="primary">複製診斷資訊</button>
+        <button type="button" id="refreshDiag">重新整理</button>
+      </div>
+      <div class="hint">
+        這套擴充套件只「監控＋提醒」，不會自動下單租用，也不會讀取你的密碼。<br>
+        若顯示識別異常，請按「複製診斷資訊」後回報，裡面不含權杖。
+      </div>
+    </section>
+  </main>
+
+  <script src="../shared.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

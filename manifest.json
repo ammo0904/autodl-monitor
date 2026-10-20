@@ -1,0 +1,46 @@
+{
+  "manifest_version": 3,
+  "name": "AutoDL 主機 GPU 監控（免刷新）",
+  "version": "1.0.0",
+  "description": "不用刷新網頁：直接以 AutoDL 算力市場介面監控指定主機的空閒 GPU（自動翻頁抓完整主機清單），有空時通知＋響鈴。",
+  "minimum_chrome_version": "116",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": [
+    "storage",
+    "unlimitedStorage",
+    "alarms",
+    "notifications",
+    "offscreen",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://*.autodl.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "AutoDL 主機 GPU 監控（免刷新）",
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*.autodl.com/*"],
+      "js": ["shared.js", "content/panel.js"],
+      "css": ["content/panel.css"],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ]
+}
